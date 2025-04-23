@@ -1,5 +1,6 @@
 package com.self.TaskManager.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -11,45 +12,28 @@ public class Role {
     @Column(name = "role_id")
     private Integer id;
 
-    @Column(name = "role")
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private RoleType role;
 
     @ManyToMany(mappedBy = "roles")
+    @JsonBackReference
     private List<User> users;
 
+    public Role(RoleType roleType) {
+        this.role=roleType;
+    }
+
     public Role() {
+
     }
 
-    public Role(String role) {
-        this.role = role;
-    }
+    // Getters and Setters
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
-    public Role(String role, List<User> users) {
-        this.role = role;
-        this.users = users;
-    }
+    public RoleType getRole() { return role; }
+    public void setRole(RoleType role) { this.role = role; }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
-    }
+    public List<User> getUsers() { return users; }
+    public void setUsers(List<User> users) { this.users = users; }
 }

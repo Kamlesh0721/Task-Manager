@@ -1,6 +1,7 @@
 package com.self.TaskManager.service;
 
 import com.self.TaskManager.model.Role;
+import com.self.TaskManager.model.RoleType;
 import com.self.TaskManager.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,18 +10,20 @@ import java.util.List;
 
 @Service
 public class RoleService {
-    private RoleRepository roleRepository;
 
     @Autowired
-    public RoleService(RoleRepository roleRepository) {
-        this.roleRepository = roleRepository;
+    private RoleRepository roleRepository;
+
+    public Role getRoleByType(RoleType roleType) {
+        return roleRepository.findByRole(roleType)
+                .orElseThrow(() -> new RuntimeException("Role not found: " + roleType));
     }
 
-    public Role createRole(Role role) {
-        return roleRepository.save(role);
-    }
-
-    public List<Role> findAll() {
+    public List<Role> getAllRoles() {
         return roleRepository.findAll();
+    }
+
+    public Role saveRole(Role role) {
+        return roleRepository.save(role);
     }
 }

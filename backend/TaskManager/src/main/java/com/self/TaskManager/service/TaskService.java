@@ -1,11 +1,13 @@
 package com.self.TaskManager.service;
 
+import com.self.TaskManager.dto.TaskDTO;
+import com.self.TaskManager.mapper.TaskMapper;
 import com.self.TaskManager.model.Task;
 import com.self.TaskManager.model.User;
 import com.self.TaskManager.repository.TaskRepository;
 import com.self.TaskManager.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,14 +22,21 @@ public class TaskService {
         this.userRepository = userRepository;
     }
 
-    public Task createTask(Long userId, Task task) {
+    public TaskDTO createTask(Long userId, TaskDTO taskDTO) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id " + userId));
+
+        Task task = TaskMapper.toEntity(taskDTO);
         task.setOwner(user);
-        return taskRepository.save(task);
+
+        Task savedTask = taskRepository.save(task);
+        return TaskMapper.toDTO(savedTask);
     }
 
-    public List<Task> getTasksByUser(Long userId) {
-        return taskRepository.findByOwnerId(userId);
+    public List<TaskDTO> getTasksByUser(Long userId) {
+        return taskRepository.findByOwnerId(userId)
+                .stream()
+                .map(TaskMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }

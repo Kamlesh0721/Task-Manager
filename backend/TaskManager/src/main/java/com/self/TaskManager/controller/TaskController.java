@@ -1,11 +1,7 @@
 package com.self.TaskManager.controller;
 
-import com.self.TaskManager.model.Task;
-import com.self.TaskManager.model.User;
-import com.self.TaskManager.repository.TaskRepository;
-import com.self.TaskManager.repository.UserRepository;
+import com.self.TaskManager.dto.TaskDTO;
 import com.self.TaskManager.service.TaskService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,14 +18,14 @@ public class TaskController {
     }
 
     @PostMapping("/user/{userId}")
-    public ResponseEntity<Task> createTask(@PathVariable Long userId, @RequestBody Task task) {
-        Task createdTask = taskService.createTask(userId, task);
+    public ResponseEntity<TaskDTO> createTask(@PathVariable Long userId, @RequestBody TaskDTO taskDTO) {
+        TaskDTO createdTask = taskService.createTask(userId, taskDTO);
         return ResponseEntity.ok(createdTask);
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Task>> getTasksByUser(@PathVariable Long userId) {
-        List<Task> tasks = taskService.getTasksByUser(userId);
+    public ResponseEntity<List<TaskDTO>> getTasksByUser(@PathVariable Long userId) {
+        List<TaskDTO> tasks = taskService.getTasksByUser(userId);
         return ResponseEntity.ok(tasks);
     }
 }

@@ -1,11 +1,11 @@
 package com.self.TaskManager.repository;
 
 import com.self.TaskManager.model.Role;
+import com.self.TaskManager.model.RoleType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
+import java.util.Optional;
+
 public interface RoleRepository extends JpaRepository<Role, Integer> {
-
-    Role findByRole(String user);
+    Optional<Role> findByRole(RoleType role);
 }

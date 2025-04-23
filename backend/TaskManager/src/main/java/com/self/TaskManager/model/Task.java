@@ -1,6 +1,7 @@
 package com.self.TaskManager.model;
-import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.springframework.format.annotation.DateTimeFormat;
 import jakarta.persistence.*;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -8,32 +9,31 @@ import java.util.Objects;
 
 @Entity
 public class Task {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "task_id")
     private Long id;
+
     private String name;
     private String description;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
+
     private boolean isCompleted;
     private String creatorName;
+
     @ManyToOne
     @JoinColumn(name = "OWNER_ID")
+   // Prevent circular reference during JSON serialization
     private User owner;
 
-    public long daysLeftUntilDeadline(LocalDate date) {
-        return ChronoUnit.DAYS.between(LocalDate.now(), date);
-    }
+    // --- Constructors ---
 
-    public Task() {
-    }
+    public Task() {}
 
-    public Task(String name,
-                String description,
-               LocalDate date,
-                boolean isCompleted,
-                String creatorName) {
+    public Task(String name, String description, LocalDate date, boolean isCompleted, String creatorName) {
         this.name = name;
         this.description = description;
         this.date = date;
@@ -41,12 +41,7 @@ public class Task {
         this.creatorName = creatorName;
     }
 
-    public Task(String name,
-                String description,
-              LocalDate date,
-                boolean isCompleted,
-                String creatorName,
-                User owner) {
+    public Task(String name, String description, LocalDate date, boolean isCompleted, String creatorName, User owner) {
         this.name = name;
         this.description = description;
         this.date = date;
@@ -54,6 +49,17 @@ public class Task {
         this.creatorName = creatorName;
         this.owner = owner;
     }
+
+    // --- Utility Method ---
+
+    public long daysLeftUntilDeadline() {
+        if (date == null) {
+            return -1; // or throw exception or return 0 depending on your logic
+        }
+        return ChronoUnit.DAYS.between(LocalDate.now(), date);
+    }
+
+    // --- Getters and Setters ---
 
     public Long getId() {
         return id;
@@ -111,16 +117,18 @@ public class Task {
         this.owner = owner;
     }
 
+    // --- equals and hashCode ---
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Task)) return false;
         Task task = (Task) o;
         return isCompleted == task.isCompleted &&
                 Objects.equals(id, task.id) &&
-                name.equals(task.name) &&
-                description.equals(task.description) &&
-                date.equals(task.date) &&
+                Objects.equals(name, task.name) &&
+                Objects.equals(description, task.description) &&
+                Objects.equals(date, task.date) &&
                 Objects.equals(creatorName, task.creatorName) &&
                 Objects.equals(owner, task.owner);
     }

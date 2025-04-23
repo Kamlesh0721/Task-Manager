@@ -1,63 +1,68 @@
 package com.self.TaskManager.service;
 
+import com.self.TaskManager.dto.UserDTO;
+import com.self.TaskManager.mapper.UserMapper;
 import com.self.TaskManager.model.Role;
+import com.self.TaskManager.model.RoleType;
 import com.self.TaskManager.model.User;
 import com.self.TaskManager.repository.RoleRepository;
-import com.self.TaskManager.repository.TaskRepository;
 import com.self.TaskManager.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-    private static final String ADMIN="ADMIN";
-    private static final String USER="USER";
 
-    private UserRepository userRepository;
-    private TaskRepository taskRepository;
-    private RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
-    @Autowired
-    public UserService(UserRepository userRepository,
-                           TaskRepository taskRepository,
-                           RoleRepository roleRepository
-                         ) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
-        this.taskRepository = taskRepository;
         this.roleRepository = roleRepository;
-
     }
 
-    public User createUser(User user) {
-        Role userRole = roleRepository.findByRole(USER);
-        user.setRoles(new ArrayList<>(Collections.singletonList(userRole)));
-        return userRepository.save(user);
+    public UserDTO createUser(UserDTO userDTO) {
+        User user = UserMapper.toEntity(userDTO);
+
+        // Assign "USER" role by default
+        Role userRole = roleRepository.findByRole(RoleType.ROLE_USER)
+                .orElseGet(() -> roleRepository.save(new Role(RoleType.ROLE_USER)));
+
+        user.setRoles(Collections.singletonList(userRole));
+
+        User savedUser = userRepository.save(user);
+        return UserMapper.toDTO(savedUser);
     }
 
-
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(UserMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public UserDTO getUserById(Long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        return optionalUser.map(UserMapper::toDTO).orElse(null);
     }
 
-    public boolean isUserEmailPresent(String email) {
-        return userRepository.findByEmail(email) != null;
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
     }
 
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElse(null);
-    }
-
-    public void deleteUser(Long id) {
-        User user = userRepository.getOne(id);
-        user.getTasksOwned().forEach(task -> task.setOwner(null));
-        userRepository.delete(user);
+    public UserDTO updateUser(Long userId, UserDTO userDTO) {
+        Optional<User> existingUserOpt = userRepository.findById(userId);
+        if (existingUserOpt.isPresent()) {
+            User user = existingUserOpt.get();
+            user.setEmail(userDTO.getEmail());
+            user.setName(userDTO.getName());
+            user.setPassword(userDTO.getPassword());
+            User updated = userRepository.save(user);
+            return UserMapper.toDTO(updated);
+        }
+        return null;
     }
 }

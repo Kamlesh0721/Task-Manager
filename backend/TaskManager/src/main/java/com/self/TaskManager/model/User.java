@@ -1,6 +1,8 @@
 package com.self.TaskManager.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,40 +20,35 @@ public class User {
 
     private String password;
 
-
     @OneToMany(mappedBy = "owner", cascade = CascadeType.PERSIST)
-    private List<Task> tasksOwned;
+    private List<Task> tasksOwned = new ArrayList<>();
 
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private List<Role> roles;
+    private List<Role> roles = new ArrayList<>();
 
+    // --- Constructors ---
 
-    public User() {
-    }
+    public User() {}
 
-    public User(String email,
-                String name, String password,
-                String photo) {
+    public User(String email, String name, String password, String photo) {
         this.email = email;
         this.name = name;
         this.password = password;
-
+        // photo is ignored here since no field exists for it
     }
 
-    public User(String email,
-                String name,
-                String password,
-                List<Task> tasksOwned,
-                List<Role> roles) {
+    public User(String email, String name, String password, List<Task> tasksOwned, List<Role> roles) {
         this.email = email;
         this.name = name;
         this.password = password;
-        this.tasksOwned = tasksOwned;
-        this.roles = roles;
+        this.tasksOwned = tasksOwned != null ? tasksOwned : new ArrayList<>();
+        this.roles = roles != null ? roles : new ArrayList<>();
     }
+
+    // --- Getters and Setters ---
 
     public Long getId() {
         return id;
@@ -85,13 +82,12 @@ public class User {
         this.password = password;
     }
 
-
     public List<Task> getTasksOwned() {
         return tasksOwned;
     }
 
     public void setTasksOwned(List<Task> tasksOwned) {
-        this.tasksOwned = tasksOwned;
+        this.tasksOwned = tasksOwned != null ? tasksOwned : new ArrayList<>();
     }
 
     public List<Role> getRoles() {
@@ -99,6 +95,6 @@ public class User {
     }
 
     public void setRoles(List<Role> roles) {
-        this.roles = roles;
+        this.roles = roles != null ? roles : new ArrayList<>();
     }
 }
