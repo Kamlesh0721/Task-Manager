@@ -28,4 +28,6 @@ public class UserDTO {
 
     public List<TaskDTO> getTasksOwned() { return tasksOwned; }
     public void setTasksOwned(List<TaskDTO> tasksOwned) { this.tasksOwned = tasksOwned; }
+
+
 }

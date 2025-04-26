@@ -26,6 +26,11 @@ public class UserService {
     }
 
     public UserDTO createUser(UserDTO userDTO) {
+        // Check if username already exists
+        if (userRepository.findByName(userDTO.getName()).isPresent()) {
+            throw new RuntimeException("Username is already taken!");
+        }
+
         User user = UserMapper.toEntity(userDTO);
 
         // Assign "USER" role by default
@@ -37,6 +42,7 @@ public class UserService {
         User savedUser = userRepository.save(user);
         return UserMapper.toDTO(savedUser);
     }
+
 
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream()
