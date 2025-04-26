@@ -2,6 +2,8 @@ package com.self.TaskManager.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
+import java.net.ProtocolFamily;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +39,6 @@ public class User {
         this.email = email;
         this.name = name;
         this.password = password;
-        // photo is ignored here since no field exists for it
     }
 
     public User(String email, String name, String password, List<Task> tasksOwned, List<Role> roles) {
@@ -97,4 +98,5 @@ public class User {
     public void setRoles(List<Role> roles) {
         this.roles = roles != null ? roles : new ArrayList<>();
     }
+
 }
