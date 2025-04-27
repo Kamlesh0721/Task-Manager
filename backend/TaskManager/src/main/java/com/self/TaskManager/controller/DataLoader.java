@@ -6,6 +6,7 @@ import com.self.TaskManager.model.User;
 import com.self.TaskManager.repository.RoleRepository;
 import com.self.TaskManager.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,10 +14,12 @@ public class DataLoader implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public DataLoader(UserRepository userRepository, RoleRepository roleRepository) {
+    public DataLoader(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @Override
@@ -39,7 +42,7 @@ public class DataLoader implements CommandLineRunner {
             User admin = new User();
             admin.setName("Super Admin");
             admin.setEmail("admin@taskmanager.com");
-            admin.setPassword("admin123"); // In a real project, make sure to encode the password
+            admin.setPassword(bCryptPasswordEncoder.encode("admin123")); // In a real project, make sure to encode the password
 
             // Assign the "ADMIN" role to the admin user
             admin.getRoles().add(adminRole);  // Make sure roles list is not null

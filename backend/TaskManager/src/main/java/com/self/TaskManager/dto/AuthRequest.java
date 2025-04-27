@@ -1,19 +1,32 @@
 package com.self.TaskManager.dto;
 
+
 public class AuthRequest {
-    private String username;
+    private String usernameOrEmail;
     private String password;
 
-    public AuthRequest() {}
+    // Getters and Setters
+    public AuthRequest() {
+    }
 
-    public AuthRequest(String username, String password) {
-        this.username = username;
+    public AuthRequest(String usernameOrEmail, String password) {
+        this.usernameOrEmail = usernameOrEmail;
         this.password = password;
     }
 
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    public String getUsernameOrEmail() {
+        return usernameOrEmail;
+    }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public void setUsernameOrEmail(String usernameOrEmail) {
+        this.usernameOrEmail = usernameOrEmail;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }

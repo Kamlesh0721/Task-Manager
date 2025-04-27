@@ -24,24 +24,24 @@ public class UserService {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
     }
-
-    public UserDTO createUser(UserDTO userDTO) {
-        // Check if username already exists
-        if (userRepository.findByName(userDTO.getName()).isPresent()) {
-            throw new RuntimeException("Username is already taken!");
-        }
-
-        User user = UserMapper.toEntity(userDTO);
-
-        // Assign "USER" role by default
-        Role userRole = roleRepository.findByRole(RoleType.ROLE_USER)
-                .orElseGet(() -> roleRepository.save(new Role(RoleType.ROLE_USER)));
-
-        user.setRoles(Collections.singletonList(userRole));
-
-        User savedUser = userRepository.save(user);
-        return UserMapper.toDTO(savedUser);
-    }
+//
+//    public UserDTO createUser(UserDTO userDTO) {
+//        // Check if username already exists
+//        if (userRepository.findByName(userDTO.getName()).isPresent()) {
+//            throw new RuntimeException("Username is already taken!");
+//        }
+//
+//        User user = UserMapper.toEntity(userDTO);
+//
+//        // Assign "USER" role by default
+//        Role userRole = roleRepository.findByRole(RoleType.ROLE_USER)
+//                .orElseGet(() -> roleRepository.save(new Role(RoleType.ROLE_USER)));
+//
+//        user.setRoles(Collections.singletonList(userRole));
+//
+//        User savedUser = userRepository.save(user);
+//        return UserMapper.toDTO(savedUser);
+//    }
 
 
     public List<UserDTO> getAllUsers() {

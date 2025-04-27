@@ -17,11 +17,11 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
-        UserDTO created = userService.createUser(userDTO);
-        return ResponseEntity.ok(created);
-    }
+//    @PostMapping
+//    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
+//        UserDTO created = userService.createUser(userDTO);
+//        return ResponseEntity.ok(created);
+//    }
 
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
