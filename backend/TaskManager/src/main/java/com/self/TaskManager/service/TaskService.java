@@ -27,14 +27,11 @@ public class TaskService {
         User user = userRepository.findByName(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        Task task = new Task();
-        task.setName(taskDTO.getName());
-        task.setDescription(taskDTO.getDescription());
+        Task task = TaskMapper.toEntity(taskDTO);
         task.setOwner(user);
-
         task = taskRepository.save(task);
 
-        return TaskMapper.toDTO(task);
+        return taskDTO;
     }
 
     public List<TaskDTO> getTasksByUser(Long userId) {
