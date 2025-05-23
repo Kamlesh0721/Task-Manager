@@ -3,91 +3,48 @@ package com.self.TaskManager.controller;
 import com.self.TaskManager.dto.AuthRequest;
 import com.self.TaskManager.dto.AuthResponse;
 import com.self.TaskManager.dto.RegisterRequest;
-
-import com.self.TaskManager.model.Role;
-import com.self.TaskManager.model.RoleType;
-import com.self.TaskManager.model.User;
-import com.self.TaskManager.repository.RoleRepository;
-import com.self.TaskManager.repository.UserRepository;
-import com.self.TaskManager.security.JWTUtil;
+import com.self.TaskManager.exceptions.UserAlreadyExistsException;
+import com.self.TaskManager.service.AuthService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JWTUtil jwtUtil;
-    private final AuthenticationManager authenticationManager;
+    private final AuthService authService;
 
-    public AuthController(UserRepository userRepository,
-                          RoleRepository roleRepository,
-                          PasswordEncoder passwordEncoder,
-                          JWTUtil jwtUtil,
-                          AuthenticationManager authenticationManager) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-        this.authenticationManager = authenticationManager;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
-    // ✅ Registration API
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
-        // Check if username already exists
-        if (userRepository.existsByName(registerRequest.getUsername())) {
+        try {
+            authService.registerUser(registerRequest);
+            return ResponseEntity.ok("User registered successfully!");
+        } catch (UserAlreadyExistsException e) {
+            // These exceptions are already annotated with @ResponseStatus(HttpStatus.BAD_REQUEST)
+            // so Spring will handle the status code. We just return the message.
+            // Alternatively, you could use a @ControllerAdvice for more centralized exception handling.
             return ResponseEntity
-                    .badRequest()
-                    .body("Error: Username is already taken!");
-        }
-
-        // Check if email already exists
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
+                    .badRequest() // or .status(HttpStatus.CONFLICT) if you prefer 409
+                    .body(e.getMessage());
+        } catch (Exception e) { // Catch any other unexpected errors
+            // Log the exception e.g. log.error("Unexpected error during registration", e);
             return ResponseEntity
-                    .badRequest()
-                    .body("Error: Email is already in use!");
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred during registration.");
         }
-
-        // Create new user
-        User user = new User();
-        user.setName(registerRequest.getUsername());
-        user.setEmail(registerRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-
-        // Set default role
-        Role userRole = roleRepository.findByRole(RoleType.ROLE_USER)
-                .orElseGet(() -> roleRepository.save(new Role(RoleType.ROLE_USER)));
-        user.setRoles(Collections.singletonList(userRole));
-
-        userRepository.save(user);
-
-        return ResponseEntity.ok("User registered successfully!");
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody AuthRequest authRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        authRequest.getUsernameOrEmail(),
-                        authRequest.getPassword()
-                )
-        );
-
-        String token = jwtUtil.generateToken((UserDetails) authentication.getPrincipal());
-
-        AuthResponse authResponse = new AuthResponse(token);
-
+        // AuthenticationManager will throw Spring Security's AuthenticationException
+        // which can be handled by a global exception handler or Spring Security's defaults.
+        // If login is successful, authService will return an AuthResponse.
+        AuthResponse authResponse = authService.authenticateUser(authRequest);
         return ResponseEntity.ok(authResponse);
     }
 }

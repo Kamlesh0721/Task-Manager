@@ -1,9 +1,7 @@
 package com.self.TaskManager.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
-import java.net.ProtocolFamily;
 import java.util.ArrayList;
 import java.util.List;
 

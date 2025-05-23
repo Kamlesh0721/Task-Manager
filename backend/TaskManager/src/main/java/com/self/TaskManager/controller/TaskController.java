@@ -1,9 +1,7 @@
 package com.self.TaskManager.controller;
 
 import com.self.TaskManager.dto.TaskDTO;
-import com.self.TaskManager.model.User;
 import com.self.TaskManager.service.TaskService;
-import com.self.TaskManager.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
