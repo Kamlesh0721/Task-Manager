@@ -1,6 +1,6 @@
 package com.self.TaskManager.security;
 
-import com.self.TaskManager.service.CustomUserDetailsService;
+import com.self.TaskManager.security.services.CustomUserDetailsService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

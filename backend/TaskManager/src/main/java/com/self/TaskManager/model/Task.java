@@ -1,142 +1,65 @@
-package com.self.TaskManager.model;
+// src/main/java/com/self/TaskManager/model/Task.java
+package com.self.TaskManager.model; // Or your .entity package
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import org.springframework.format.annotation.DateTimeFormat;
 import jakarta.persistence.*;
-import java.time.*;
-import java.time.temporal.ChronoUnit;
-import java.util.Objects;
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "tasks")
 public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "task_id")
     private Long id;
 
-    private String name;
+    @Column(nullable = false)
+    private String title;
+
+    @Lob
     private String description;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate date;
+    private LocalDateTime createdAt;
+    private LocalDateTime dueDate;
 
-    private boolean isCompleted;
-    private String creatorName;
+    @Column(nullable = false)
+    private String status; // Or use TaskStatus enum
 
-    @ManyToOne
-    @JoinColumn(name = "OWNER_ID")
-   // Prevent circular reference during JSON serialization
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false) // Task must have an owner
     private User owner;
 
-    // --- Constructors ---
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        if (status == null || status.trim().isEmpty()) {
+            status = "TODO"; // Default status
+        }
+    }
 
+    // Constructors
     public Task() {}
 
-    public Task(String name, String description, LocalDate date, boolean isCompleted, String creatorName) {
-        this.name = name;
+    public Task(String title, String description, LocalDateTime dueDate, String status, User owner) {
+        this.title = title;
         this.description = description;
-        this.date = date;
-        this.isCompleted = isCompleted;
-        this.creatorName = creatorName;
-    }
-
-    public Task(String name, String description, LocalDate date, boolean isCompleted, String creatorName, User owner) {
-        this.name = name;
-        this.description = description;
-        this.date = date;
-        this.isCompleted = isCompleted;
-        this.creatorName = creatorName;
+        this.dueDate = dueDate;
+        this.status = status;
         this.owner = owner;
     }
 
-    // --- Utility Method ---
-
-    public long daysLeftUntilDeadline() {
-        if (date == null) {
-            return -1; // or throw exception or return 0 depending on your logic
-        }
-        return ChronoUnit.DAYS.between(LocalDate.now(), date);
-    }
-
-    // --- Getters and Setters ---
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public boolean isCompleted() {
-        return isCompleted;
-    }
-
-    public void setCompleted(boolean completed) {
-        isCompleted = completed;
-    }
-
-    public String getCreatorName() {
-        return creatorName;
-    }
-
-    public void setCreatorName(String creatorName) {
-        this.creatorName = creatorName;
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
-    }
-
-    // --- equals and hashCode ---
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Task)) return false;
-        Task task = (Task) o;
-        return isCompleted == task.isCompleted &&
-                Objects.equals(id, task.id) &&
-                Objects.equals(name, task.name) &&
-                Objects.equals(description, task.description) &&
-                Objects.equals(date, task.date) &&
-                Objects.equals(creatorName, task.creatorName) &&
-                Objects.equals(owner, task.owner);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description, date, isCompleted, creatorName, owner);
-    }
-
-
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getDueDate() { return dueDate; }
+    public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+    public User getOwner() { return owner; }
+    public void setOwner(User owner) { this.owner = owner; }
 }

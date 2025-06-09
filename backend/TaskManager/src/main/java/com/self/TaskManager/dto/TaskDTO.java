@@ -1,31 +1,32 @@
 package com.self.TaskManager.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-public class TaskDTO {
+public class TaskDTO { // You could also name this TaskSummaryDTO
     private Long id;
-    private String name;
-    private String description;
-    private LocalDate date;
-    private boolean isCompleted;
-    private String creatorName;
+    private String title;
+    private String status;
+    private LocalDateTime dueDate;
+    // Add other fields if needed for this summary, e.g., priority
+    // Avoid including the full description if it can be very long, unless necessary for the summary.
 
+    // Constructors
+    public TaskDTO() {}
+
+    public TaskDTO(Long id, String title, String status, LocalDateTime dueDate) {
+        this.id = id;
+        this.title = title;
+        this.status = status;
+        this.dueDate = dueDate;
+    }
+
+    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
-    public LocalDate getDate() { return date; }
-    public void setDate(LocalDate date) { this.date = date; }
-
-    public boolean isCompleted() { return isCompleted; }
-    public void setCompleted(boolean completed) { isCompleted = completed; }
-
-    public String getCreatorName() { return creatorName; }
-    public void setCreatorName(String creatorName) { this.creatorName = creatorName; }
-
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+    public LocalDateTime getDueDate() { return dueDate; }
+    public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
 }

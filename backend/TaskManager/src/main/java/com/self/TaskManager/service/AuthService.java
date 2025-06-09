@@ -1,78 +1,32 @@
+// src/main/java/com/self/TaskManager/service/AuthService.java
 package com.self.TaskManager.service;
 
-import com.self.TaskManager.dto.AuthRequest;
-import com.self.TaskManager.dto.AuthResponse;
-import com.self.TaskManager.dto.RegisterRequest;
-import com.self.TaskManager.exceptions.UserAlreadyExistsException;
-import com.self.TaskManager.model.Role;
-import com.self.TaskManager.model.RoleType;
-import com.self.TaskManager.model.User;
-import com.self.TaskManager.repository.RoleRepository;
-import com.self.TaskManager.repository.UserRepository;
-import com.self.TaskManager.security.JWTUtil;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // Optional, but good for multi-repo operations
+// Assuming your DTOs are structured like this based on previous discussions:
+import com.self.TaskManager.dto.requests.AuthRequest;
+import com.self.TaskManager.dto.responses.AuthResponse; // Ensure this import is correct
+import com.self.TaskManager.dto.requests.UserRegistrationRequest;
+import com.self.TaskManager.dto.responses.UserProfileResponse;
 
-import java.util.Collections;
+public interface AuthService {
 
-@Service
-public class AuthService {
+    /**
+     * Authenticates a user based on the provided login request.
+     *
+     * @param authRequest DTO containing email and password.
+     * @return AuthResponse DTO containing JWT token and user details.
+     * @throws org.springframework.security.core.AuthenticationException if authentication fails.
+     * @throws com.self.TaskManager.exceptions.ResourceNotFoundException if the user doesn't exist (can be thrown by UserDetailsService).
+     */
+    AuthResponse loginUser(AuthRequest authRequest); // <<<< FIXED: Removed "requests."
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JWTUtil jwtUtil;
-    private final AuthenticationManager authenticationManager;
-
-    public AuthService(UserRepository userRepository,
-                       RoleRepository roleRepository,
-                       PasswordEncoder passwordEncoder,
-                       JWTUtil jwtUtil,
-                       AuthenticationManager authenticationManager) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-        this.authenticationManager = authenticationManager;
-    }
-
-    @Transactional // Good practice if multiple database operations occur
-    public void registerUser(RegisterRequest registerRequest) {
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new UserAlreadyExistsException("Error: Username is already taken!");
-        }
-        System.out.println(registerRequest.getUsername()+" | "+registerRequest.getEmail()+" | "+registerRequest.getPassword());
-        User user = new User();
-        user.setName(registerRequest.getUsername());
-        user.setEmail(registerRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-
-        Role userRole = roleRepository.findByRole(RoleType.USER)
-                .orElseGet(() -> {
-                    Role newRole = new Role(RoleType.USER);
-                    return roleRepository.save(newRole);
-                });
-        user.setRoles(Collections.singletonList(userRole));
-
-        userRepository.save(user);
-    }
-
-    public AuthResponse authenticateUser(AuthRequest authRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        authRequest.getUserEmail(),
-                        authRequest.getPassword()
-                )
-        );
-
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String token = jwtUtil.generateToken(userDetails);
-
-        return new AuthResponse(token);
-    }
+    /**
+     * Registers a new user based on the provided registration request.
+     *
+     * @param registrationRequest DTO containing user details for registration.
+     * @return UserProfileResponse DTO representing the newly registered user.
+     * @throws com.self.TaskManager.exceptions.UserAlreadyExistsException if email is already taken.
+     * @throws com.self.TaskManager.exceptions.ResourceNotFoundException if a specified role doesn't exist.
+     * @throws com.self.TaskManager.exceptions.BadRequestException if the request is malformed (e.g., invalid role name).
+     */
+    UserProfileResponse registerUser(UserRegistrationRequest registrationRequest);
 }

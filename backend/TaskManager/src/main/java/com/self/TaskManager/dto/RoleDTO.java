@@ -1,12 +1,10 @@
-package com.self.TaskManager.dto;
+package com.self.TaskManager.dto; // Or a more specific sub-package like dto.shared or dto.role
 
-
-import com.self.TaskManager.model.RoleType;
+import com.self.TaskManager.model.RoleType; // Your RoleType enum
 
 public class RoleDTO {
-
     private Integer id;
-    private RoleType role;
+    private RoleType role; // Using your RoleType enum directly
 
     // Constructors
     public RoleDTO() {}
